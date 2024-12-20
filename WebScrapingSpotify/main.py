@@ -64,11 +64,28 @@ login_input.send_keys(f"{link}")
 login_input.send_keys(Keys.RETURN)
 
 #Add pass no input mas antes espera aparecer o elemento
-login_pass = WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.NAME, 'Passwd'))
+login_pass = WebDriverWait(driver, 15).until(
+    EC.element_to_be_clickable((By.NAME, 'Passwd'))
 )
 login_pass.send_keys(f"{link_pass}")
 login_pass.send_keys(Keys.RETURN)
+
+pesquisa_musica = WebDriverWait(driver, 15).until(
+    EC.element_to_be_clickable((By.NAME, 'search_query'))
+)
+
+pesquisa_musica.click()
+
+
+for musica in musicas_divs:
+    if musicas_divs.index(musica) == 0:
+        pesquisa_musica.send_keys(f"{musica.text.strip()}")
+        pesquisa_musica.send_keys(Keys.RETURN)
+        press_opitions = WebDriverWait(driver, 15).until(
+            EC.element_to_be_clickable((By.XPATH, '//button[@aria-label="Menu de ações"]'))
+        )
+
+        press_opitions.click()
 
 
 
