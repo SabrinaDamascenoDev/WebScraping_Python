@@ -70,14 +70,16 @@ login_pass = WebDriverWait(driver, 15).until(
 login_pass.send_keys(f"{link_pass}")
 login_pass.send_keys(Keys.RETURN)
 
+#Clicar no input de pesquisa
 pesquisa_musica = WebDriverWait(driver, 15).until(
     EC.element_to_be_clickable((By.NAME, 'search_query'))
 )
 
 pesquisa_musica.click()
 
-
+#Pesquisar nomes das musicas no youtube e criar a playlist quando for adicionar a primeira música
 for musica in musicas_divs:
+    #Se o index for 0, criar playlist
     if musicas_divs.index(musica) == 0:
         pesquisa_musica.send_keys(f"{musica.text.strip()}")
         pesquisa_musica.send_keys(Keys.RETURN)
