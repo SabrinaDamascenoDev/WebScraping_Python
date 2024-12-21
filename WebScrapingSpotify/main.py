@@ -8,6 +8,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from dotenv import load_dotenv
 import os
+import time
 
 
 load_dotenv()
@@ -70,18 +71,19 @@ login_pass = WebDriverWait(driver, 15).until(
 login_pass.send_keys(f"{link_pass}")
 login_pass.send_keys(Keys.RETURN)
 
-
+# Clicar no input de pesquisa
+pesquisa_musica = WebDriverWait(driver, 15).until(
+    EC.element_to_be_clickable((By.NAME, 'search_query'))
+)
+pesquisa_musica.click()
 
 #Pesquisar nomes das musicas no youtube e criar a playlist quando for adicionar a primeira música
 for musica in musicas_divs:
-    # Clicar no input de pesquisa
+    #Verificar se o input de pesquisa esta vazio, se nao estiver deixa-lo
     pesquisa_musica = WebDriverWait(driver, 15).until(
         EC.element_to_be_clickable((By.NAME, 'search_query'))
     )
-    pesquisa_musica.click()
-
-    #Verificar se o input de pesquisa esta vazio, se nao estiver deixa-lo
-
+    pesquisa_musica.clear()
     #Se o index for 0, criar playlist
     if musicas_divs.index(musica) == 0:
         pesquisa_musica.send_keys(f"{musica.text.strip()}")
@@ -91,7 +93,6 @@ for musica in musicas_divs:
         )
         press_opitions.click()
         try:
-
             press_playlist = WebDriverWait(driver, 15).until(
                 EC.presence_of_all_elements_located((By.CLASS_NAME, 'style-scope ytd-menu-service-item-renderer'))
             )
@@ -121,6 +122,7 @@ for musica in musicas_divs:
 
             if len(buttons) >= 2:
                 press_create = buttons[1]
+                time.sleep(3)
             press_create.click()
 
         except TimeoutException:
@@ -135,7 +137,11 @@ for musica in musicas_divs:
         press_opitions = WebDriverWait(driver, 15).until(
             EC.element_to_be_clickable((By.XPATH, '//button[@aria-label="Menu de ações"]'))
         )
+        driver.execute_script("arguments[0].scrollIntoView(true);", press_opitions)
+        time.sleep(3)  # Aguarde um curto tempo para evitar problemas de carregamento
         press_opitions.click()
+
+        time.sleep(3)
 
         try:
             press_playlist = WebDriverWait(driver, 15).until(
@@ -161,8 +167,8 @@ for musica in musicas_divs:
             print("Erro: O elemento não ficou disponível a tempo.")
         except Exception as err:
             print(f"Ocorreu um erro: {err}")
-
-
+        driver.refresh()
+        time.sleep(3)
 
 
 
