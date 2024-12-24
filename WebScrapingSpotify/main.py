@@ -39,7 +39,7 @@ print(nome_musicas)
 
 #Entra no firefox usando o selenium
 driver = webdriver.Firefox()
-driver.minimize_window()
+driver.maximize_window()
 
 #Espera para aparecer elemento
 wait = WebDriverWait(driver, 3)
@@ -84,27 +84,35 @@ for musica in musicas_divs:
         EC.element_to_be_clickable((By.NAME, 'search_query'))
     )
     pesquisa_musica.clear()
-    #Se o index for 0, criar playlist
-    if musicas_divs.index(musica) == 0:
-        pesquisa_musica.send_keys(f"{musica.text.strip()}")
-        pesquisa_musica.send_keys(Keys.RETURN)
 
+    pesquisa_musica.send_keys(f"{musica.text.strip()}")
+    pesquisa_musica.send_keys(Keys.RETURN)
+
+    try:
+        press_opitions = WebDriverWait(driver, 15).until(
+            EC.presence_of_element_located((By.XPATH, '//div[@id="menu"]//button[contains(@aria-label, "Menu") and contains(@class, "style-scope yt-icon-button")]'))
+        )
         press_opitions = WebDriverWait(driver, 15).until(
             EC.element_to_be_clickable((By.XPATH, '//div[@id="menu"]//button[contains(@aria-label, "Menu") and contains(@class, "style-scope yt-icon-button")]'))
         )
         press_opitions.click()
-        try:
-            press_playlist = WebDriverWait(driver, 15).until(
-                EC.presence_of_all_elements_located((By.CLASS_NAME, 'style-scope ytd-menu-service-item-renderer'))
-            )
-            if len(press_playlist) >= 3:
-                press_playlist[2].click()
+    except TimeoutException:
+         print("Erro: O botão não foi encontrado ou não estava clicável.")
+    except Exception as err:
+        print(f"Ocorre un erro: {err}")
+    try:
+        press_playlist = WebDriverWait(driver, 15).until(
+            EC.presence_of_all_elements_located((By.CLASS_NAME, 'style-scope ytd-menu-service-item-renderer'))
+        )
+        if len(press_playlist) >= 3:
+            press_playlist[2].click()
 
-        except TimeoutError:
-            print("Erro: O tempo limite foi excedido e os elementos não foram encontrados.")
-        except Exception as e:
-            print(f"Ocorreu um erro: {e}")
-
+    except TimeoutError:
+        print("Erro: O tempo limite foi excedido e os elementos não foram encontrados.")
+    except Exception as e:
+        print(f"Ocorreu um erro: {e}")
+    #Se o index for 0, criar playlist
+    if musicas_divs.index(musica) == 0:
         press_newPlatist = WebDriverWait(driver, 15).until(
             EC.element_to_be_clickable((By.XPATH, '//button[@aria-label="Nova playlist"]'))
         )
@@ -117,61 +125,25 @@ for musica in musicas_divs:
         add_nome.send_keys(Keys.RETURN)
 
         try:
+            #Clica em salvar
             buttons = WebDriverWait(driver, 20).until(
                 EC.presence_of_all_elements_located((By.XPATH, '//button[@aria-label="Criar"]'))
             )
-
             if len(buttons) >= 2:
                 press_create = buttons[1]
-                time.sleep(3)
             press_create.click()
-
         except TimeoutException:
             print("Erro: O botão ou modal não ficaram disponíveis a tempo.")
         except Exception as err:
             print(f"Ocorre un erro: {err}")
+
+        time.sleep(2)
     else:
-        pesquisa_musica.send_keys(f"{musica.text.strip()}")
-        pesquisa_musica.send_keys(Keys.RETURN)
-
-        #Achar e clicar no botão de menu de ações
-        try:
-            #Achar elemento
-            press_opitions = WebDriverWait(driver, 15).until(
-                EC.presence_of_element_located((By.XPATH,'//div[@id="menu"]//button[contains(@aria-label, "Menu") and contains(@class, "style-scope yt-icon-button")]'))
-            )
-            #Ver se ta clicavel
-            press_opitions = WebDriverWait(driver, 15).until(
-                EC.element_to_be_clickable((By.XPATH, '//div[@id="menu"]//button[contains(@aria-label, "Menu") and contains(@class, "style-scope yt-icon-button")]'))
-            )
-            #clicar
-            press_opitions.click()
-        except TimeoutException:
-            print("Erro: O botão não foi encontrado ou não estava clicável.")
-        except Exception as err:
-            print(f"Ocorre un erro: {err}")
-
-        time.sleep(3)
-
-        #Clicar para salvar em uma playlist
-        try:
-            press_playlist = WebDriverWait(driver, 15).until(
-                EC.presence_of_all_elements_located((By.CLASS_NAME, 'style-scope ytd-menu-service-item-renderer'))
-            )
-            if len(press_playlist) >= 3:
-                press_playlist[2].click()
-
-        except TimeoutError:
-            print("Erro: O tempo limite foi excedido e os elementos não foram encontrados.")
-        except Exception as err:
-            print(f"Ocorreu um erro: {err}")
-
         #Clicar na playlist com o mesmo nome da playlist do Spotify
         try:
             element = WebDriverWait(driver, 20).until(
                 EC.element_to_be_clickable((By.XPATH, f'//yt-formatted-string[@aria-label="{nome[:len(nome)-9]}Particular"]'))
             )
-
             element.click()
 
         except TimeoutException:
@@ -179,8 +151,3 @@ for musica in musicas_divs:
         except Exception as err:
             print(f"Ocorreu um erro: {err}")
         time.sleep(2)
-
-
-
-
-
