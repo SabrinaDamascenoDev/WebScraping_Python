@@ -88,8 +88,9 @@ for musica in musicas_divs:
     if musicas_divs.index(musica) == 0:
         pesquisa_musica.send_keys(f"{musica.text.strip()}")
         pesquisa_musica.send_keys(Keys.RETURN)
+
         press_opitions = WebDriverWait(driver, 15).until(
-            EC.element_to_be_clickable((By.XPATH, '//button[@aria-label="Menu de ações"]'))
+            EC.element_to_be_clickable((By.XPATH, '//div[@id="menu"]//button[contains(@aria-label, "Menu") and contains(@class, "style-scope yt-icon-button")]'))
         )
         press_opitions.click()
         try:
@@ -133,16 +134,26 @@ for musica in musicas_divs:
         pesquisa_musica.send_keys(f"{musica.text.strip()}")
         pesquisa_musica.send_keys(Keys.RETURN)
 
-        #Ajeitar erro nessa sessão de código
-        press_opitions = WebDriverWait(driver, 15).until(
-            EC.element_to_be_clickable((By.XPATH, '//button[@aria-label="Menu de ações"]'))
-        )
-        driver.execute_script("arguments[0].scrollIntoView(true);", press_opitions)
-        time.sleep(3)  # Aguarde um curto tempo para evitar problemas de carregamento
-        press_opitions.click()
+        #Achar e clicar no botão de menu de ações
+        try:
+            #Achar elemento
+            press_opitions = WebDriverWait(driver, 15).until(
+                EC.presence_of_element_located((By.XPATH,'//div[@id="menu"]//button[contains(@aria-label, "Menu") and contains(@class, "style-scope yt-icon-button")]'))
+            )
+            #Ver se ta clicavel
+            press_opitions = WebDriverWait(driver, 15).until(
+                EC.element_to_be_clickable((By.XPATH, '//div[@id="menu"]//button[contains(@aria-label, "Menu") and contains(@class, "style-scope yt-icon-button")]'))
+            )
+            #clicar
+            press_opitions.click()
+        except TimeoutException:
+            print("Erro: O botão não foi encontrado ou não estava clicável.")
+        except Exception as err:
+            print(f"Ocorre un erro: {err}")
 
         time.sleep(3)
 
+        #Clicar para salvar em uma playlist
         try:
             press_playlist = WebDriverWait(driver, 15).until(
                 EC.presence_of_all_elements_located((By.CLASS_NAME, 'style-scope ytd-menu-service-item-renderer'))
@@ -155,20 +166,19 @@ for musica in musicas_divs:
         except Exception as err:
             print(f"Ocorreu um erro: {err}")
 
+        #Clicar na playlist com o mesmo nome da playlist do Spotify
         try:
             element = WebDriverWait(driver, 20).until(
                 EC.element_to_be_clickable((By.XPATH, f'//yt-formatted-string[@aria-label="{nome[:len(nome)-9]}Particular"]'))
             )
 
             element.click()
-            print("Elemento clicado com sucesso!")
 
         except TimeoutException:
             print("Erro: O elemento não ficou disponível a tempo.")
         except Exception as err:
             print(f"Ocorreu um erro: {err}")
-        driver.refresh()
-        time.sleep(3)
+        time.sleep(2)
 
 
 
